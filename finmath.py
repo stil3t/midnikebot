@@ -1,9 +1,11 @@
 import numpy as np
 
+O = 10**-3
 
 def moving_average(x, w):
     # thx yatu
-    return np.convolve(x, np.ones(w), 'valid') / w
+    # return np.convolve(x, np.ones(w), 'valid') / w
+    return x.rolling(w).mean()
 
 
 def rsi(x, n=14):
@@ -16,6 +18,3 @@ def rsi(x, n=14):
     return 100 - 100 / (1 - avg_gain / avg_loss)
     # return x1
 
-print(rsi(np.array(
-    [140.06, 144.28, 147.64, 150.6, 151.92, 154.79, 152.61, 150.26, 150.47, 146.68, 145.14, 148.1, 148.82, 148.91,
-     147.21, 142.84, 145.48])))

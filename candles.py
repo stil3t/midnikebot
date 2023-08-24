@@ -23,11 +23,14 @@ async def get_1m_candles(ticker, client, nmins=60):
 
 
 async def process_candle(candle):
-    candle = asdict(candle)
-    for attr in ['open', 'high', 'low', 'close']:
-        candle[attr] = candle[attr]['units'] + candle[attr]['nano'] * 10 ** -9
-    candle['time'] += timedelta(hours=3)  # converting to Moscow time
-    return candle
+    try:
+        candle = asdict(candle)
+        for attr in ['open', 'high', 'low', 'close']:
+            candle[attr] = candle[attr]['units'] + candle[attr]['nano'] * 10 ** -9
+        candle['time'] += timedelta(hours=3)  # converting to Moscow time
+        return candle
+    except Exception:
+        return None
 
 
 async def request_iterator(ticker):

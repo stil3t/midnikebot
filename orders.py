@@ -29,6 +29,7 @@ async def buy(ticker, quantity, client):
         order_type=ORDER_TYPE_MARKET,
         account_id=ACCOUNT_ID
     )
+    await asyncio.sleep(10)
     return ordr
 
 
@@ -42,6 +43,7 @@ async def sell(ticker, quantity, client):
         order_type=ORDER_TYPE_MARKET,
         account_id=ACCOUNT_ID
     )
+    await asyncio.sleep(10)
     return ordr
 
 
@@ -57,6 +59,7 @@ async def lbuy(ticker, price, quantity, client):
         order_type=ORDER_TYPE_LIMIT,
         account_id=ACCOUNT_ID
     )
+    await asyncio.sleep(10)
     return ordr
 
 
@@ -71,4 +74,5 @@ async def lsell(ticker, price, quantity, client):
         order_type=ORDER_TYPE_LIMIT,
         account_id=ACCOUNT_ID
     )
+    await asyncio.sleep(10)
     return ordr
