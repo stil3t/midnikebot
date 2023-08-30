@@ -1,11 +1,9 @@
 import asyncio
-import numpy as np
-import pandas as pd
 from datetime import timedelta
 from dataclasses import asdict
 
-from get_figi import ticker_table
-from misc import quotation_to_float, float_to_quotation
+from get_data import ticker_table
+from utils import qtof
 
 from tinkoff.invest.utils import now
 
@@ -26,7 +24,7 @@ async def process_candle(candle):
     try:
         candle = asdict(candle)
         for attr in ['open', 'high', 'low', 'close']:
-            candle[attr] = candle[attr]['units'] + candle[attr]['nano'] * 10 ** -9
+            candle[attr] = qtof(candle[attr])
         candle['time'] += timedelta(hours=3)  # converting to Moscow time
         return candle
     except Exception:

@@ -1,8 +1,4 @@
 .idea/
 venv/
 
-config/
-
-market_data_cache/
-tests/**/*.txt
-stats.db
+robot/config/
