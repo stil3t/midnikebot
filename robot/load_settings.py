@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     account_id: str
 
     class Config:
-        env_file = "config/.env"
+        env_file = './robot/.env'
 
 
 settings = Settings()

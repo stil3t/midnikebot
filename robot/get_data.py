@@ -5,7 +5,7 @@ from tinkoff.invest import Client
 from tinkoff.invest.services import InstrumentsService
 from tinkoff.invest.utils import quotation_to_decimal
 
-from load_settings import settings
+from robot.load_settings import settings
 
 TOKEN = settings.token
 
