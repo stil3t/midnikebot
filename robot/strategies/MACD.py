@@ -21,7 +21,8 @@ class MovingAverageStrategy:
         await self.client.ainit()
         self.data = await self.client.get_1m_candles(self.ticker, nmins=60)
         self.data = pd.DataFrame(self.data)['close']
-
+        self.time = self.data.index
+        self.data = self.data.to_numpy()
         self.subscription = self.client.client.market_data_stream.market_data_stream(
             request_iterator(self.ticker)
         )
@@ -41,22 +42,26 @@ class MovingAverageStrategy:
 
         self.balance = await self.client.get_rubs()
 
-        new_value = None
-        while (new_value := (await anext(self.subscription)).candle) is None:
-            await asyncio.sleep(1)
+        new_candle = None
+        while (new_candle := (await anext(self.subscription)).candle) is None:
+            await asyncio.sleep(2)
 
-        new_value = utils.process_candle(new_value)['close']
+        new_value = utils.process_candle(new_candle)['close']
+        new_time = utils.process_candle(new_candle)['time']
 
-        new_lma = utils.ema_new_val(new_value, self.long_ma.iloc[-1], self.lma)
-        new_sma = utils.ema_new_val(new_value, self.short_ma.iloc[-1], self.sma)
+        if new_time == self.time[-1]:
+            return None
+
+        new_lma = utils.ema_new_val(new_value, self.long_ma[-1], self.lma)
+        new_sma = utils.ema_new_val(new_value, self.short_ma[-1], self.sma)
         new_macd = new_sma - new_lma
-        new_signal = utils.ema_new_val(new_macd, self.signal.iloc[-1], self.ama)
+        new_signal = utils.ema_new_val(new_macd, self.signal[-1], self.ama)
 
         ordr = None
-        if self.macd.iloc[-1] < self.signal.iloc[-1] and new_macd > new_signal:
+        if self.macd[-1] < self.signal[-1] and new_macd > new_signal:
             q = (self.balance // new_value) // self.lot
             ordr = await self.client.buy(self.ticker, q)
-        elif self.macd.iloc[-1] > self.signal.iloc[-1] and new_macd < new_signal:
+        elif self.macd[-1] > self.signal[-1] and new_macd < new_signal:
             if self.lots > 0:
                 ordr = await self.client.sell(self.ticker, self.lots)
 

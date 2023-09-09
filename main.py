@@ -18,16 +18,8 @@ async def main():
     await invest_client.ainit()
     strategy = MACD.MovingAverageStrategy('SBER')
     await strategy.setup()
-    await strategy.trade()
-
-    # it = request_iterator('SBER')
-    # it = invest_client.client.market_data_stream.market_data_stream(it)
-    # print(await anext(it))
-
-    # async for candle in invest_client.client.get_all_candles(figi="BBG000B9XRY4", from_=now() - timedelta(days=3),
-    #         interval=CandleInterval.CANDLE_INTERVAL_1_MIN, ):
-    #     print(candle)
-
+    while True:
+        await strategy.trade()
 
 
 if __name__ == "__main__":

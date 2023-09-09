@@ -61,6 +61,7 @@ class Client:
                                                    direction=ORDER_DIRECTION_BUY, quantity=quantity,
                                                    order_type=ORDER_TYPE_MARKET, account_id=settings.account_id)
         await asyncio.sleep(10)
+        print(f'{now()}: bought {ticker}, {quantity}')
         return ordr
 
     async def sell(self, ticker, quantity) -> PostOrderResponse:
@@ -69,6 +70,7 @@ class Client:
                                                    direction=ORDER_DIRECTION_SELL, quantity=quantity,
                                                    order_type=ORDER_TYPE_MARKET, account_id=settings.account_id)
         await asyncio.sleep(10)
+        print(f'{now()}: sold {ticker}, {quantity}')
         return ordr
 
     async def limited_buy(self, ticker, price, quantity) -> PostOrderResponse:
