@@ -53,3 +53,13 @@ def process_candle(candle):
         return candle
     except Exception:
         return None
+
+def rsi(x, n=14):
+    assert len(x) > n, 'Not enough data'
+    x0, x1 = np.diff(x), np.diff(x)
+    x0[x0 < 0] = 0
+    x1[x1 > 0] = 0
+    avg_gain = ema(x0, n)
+    avg_loss = ema(x1, n)
+    return 100 - 100 / (1 - avg_gain / avg_loss)
+

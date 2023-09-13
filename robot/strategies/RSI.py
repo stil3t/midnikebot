@@ -9,16 +9,16 @@ from robot import utils
 import talib
 
 
-class MovingAverageStrategy:
+class RelativeStrengthIndicatorStrategy:
 
-    def __init__(self, ticker, *, lma=26, sma=12, ama=9, interval=None):
+    def __init__(self, ticker, *, rsi_param=14, rsi_low=20, rsi_high=80, interval=None):
         self.lots = None
         self.ticker = ticker
         self.client = invest_client
         self.lot = ticker_table[ticker].lot
-        self.lma = lma
-        self.sma = sma
-        self.ama = ama
+        self.rsi_param = rsi_param
+        self.rsi_low = rsi_low
+        self.rsi_high = rsi_high
         self.interval = interval
 
     async def setup(self, time: dict = None):
@@ -27,8 +27,7 @@ class MovingAverageStrategy:
 
         self.df = await self.client.get_candles(self.ticker, self.interval, time)
         self.df = pd.DataFrame(self.df)[['time', 'close']]
-        self.df['macd'], self.df['signal'], macdhist = talib.MACD(self.df['close'], slowperiod=self.lma,
-                                                                  fastperiod=self.sma, signalperiod=self.ama)
+        self.df['rsi'] = talib.RSI(self.df['close'], timeperiod=self.rsi_param)
 
         self.subscription = self.client.client.market_data_stream.market_data_stream(request_iterator(self.ticker))
 
@@ -53,13 +52,13 @@ class MovingAverageStrategy:
 
         # REFACTORING NEEDED
         self.df.loc[len(self.df)] = pd.Series(
-            {'time': new_row['time'], 'close': new_row['close'], 'macd': pd.NA, 'signal': pd.NA})
-        self.df['macd'], self.df['signal'], macdhist = talib.MACD(self.df['close'], slowperiod=self.lma,
-                                                                  fastperiod=self.sma, signalperiod=self.ama)
+            {'time': new_row['time'], 'close': new_row['close'], 'rsi': pd.NA})
+        self.df['rsi'] = talib.RSI(self.df['close'], timeperiod=self.rsi_param)
+        print(self.df.tail())
 
-        if self.df.macd.iloc[-2] < self.df.signal.iloc[-2] and self.df.macd.iloc[-1] > self.df.signal.iloc[-1]:
-            q = (self.balance // self.df.close.iloc[-1]) // self.lot
-            await self.client.buy(self.ticker, int(q))
-        elif self.df.macd.iloc[-2] > self.df.signal.iloc[-2] and self.df.macd.iloc[-1] < self.df.signal.iloc[-1]:
+        if self.df.rsi.iloc[-1] >= self.rsi_high:
             if self.lots > 0:
                 await self.client.sell(self.ticker, self.lots)
+        elif self.df.rsi.iloc[-1] <= self.rsi_low:
+            q = (self.balance // self.df.close.iloc[-1]) // self.lot
+            await self.client.buy(self.ticker, int(q))

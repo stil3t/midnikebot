@@ -89,13 +89,33 @@ class Client:
         await asyncio.sleep(10)
         return ordr
 
-    async def get_1m_candles(self, ticker, nmins=60):
+    async def get_candles(self,
+                          ticker,
+                          interval: CandleInterval = None,
+                          time: dict = None):
+
+        interval = CandleInterval.CANDLE_INTERVAL_1_MIN if interval is None else interval
+
+        timedelta_dict = {CandleInterval.CANDLE_INTERVAL_1_MIN: {'minutes': 60},
+                          CandleInterval.CANDLE_INTERVAL_2_MIN: {'minutes': 2 * 60},
+                          CandleInterval.CANDLE_INTERVAL_3_MIN: {'minutes': 3 * 60},
+                          CandleInterval.CANDLE_INTERVAL_5_MIN: {'minutes': 5 * 60},
+                          CandleInterval.CANDLE_INTERVAL_10_MIN: {'hours': 24},
+                          CandleInterval.CANDLE_INTERVAL_15_MIN: {'hours': 24},
+                          CandleInterval.CANDLE_INTERVAL_30_MIN: {'hours': 48},
+                          CandleInterval.CANDLE_INTERVAL_HOUR: {'hours': 72},
+                          CandleInterval.CANDLE_INTERVAL_2_HOUR: {'hours': 72},
+                          CandleInterval.CANDLE_INTERVAL_4_HOUR: {'days': 7},
+                          CandleInterval.CANDLE_INTERVAL_DAY: {'weeks': 27},
+                          CandleInterval.CANDLE_INTERVAL_WEEK: {'weeks': 54},
+                          CandleInterval.CANDLE_INTERVAL_MONTH: {'weeks': 4 * 36}}
+
+        time = timedelta(**timedelta_dict[interval]) if time is None else timedelta(**time)
+
         data = []
         async for candle in self.client.get_all_candles(figi=ticker_table[ticker].figi,
-                                                        from_=now() - timedelta(minutes=nmins),
-                                                        interval=CandleInterval.CANDLE_INTERVAL_1_MIN):
+                                                        from_=now() - time, interval=interval):
             data.append(process_candle(candle))
-            # data.append(candle)
 
         await asyncio.sleep(2)
         return data
