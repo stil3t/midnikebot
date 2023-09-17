@@ -15,11 +15,12 @@ import robot.utils as utils
 
 
 async def main():
-    await invest_client.ainit()
-    strategy = RSI.RelativeStrengthIndicatorStrategy('SBER')
-    await strategy.setup()
-    while True:
-        await strategy.trade()
+    # await invest_client.ainit()
+    # strategy = RSI.RelativeStrengthIndicatorStrategy('SBER')
+    # await strategy.setup()
+    # while True:
+    #     await strategy.trade()
+    pass
 
 
 if __name__ == "__main__":

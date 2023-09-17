@@ -44,6 +44,9 @@ class TickerTable:
     def __getitem__(self, ticker: str) -> pd.Series:
         return self.df.loc[ticker]
 
+    def get_by_figi(self, figi: str) -> pd.Series:
+        return self.df.loc[self.df.figi == figi].iloc[0]
+
     def update(self) -> None:
         self.df = get_data()
         self.df = self.df.set_index('ticker')
@@ -51,4 +54,3 @@ class TickerTable:
 
 
 ticker_table = TickerTable()
-
